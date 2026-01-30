@@ -1,0 +1,32 @@
+name: Historia de Usuario (HU)
+description: Crear una HU con DoR/CA/DoD
+title: "[HU] "
+labels: ["hu"]
+body:
+  - type: input
+    id: hu_id
+    attributes:
+      label: ID
+      description: Ej. HU-BE-01
+      placeholder: HU-BE-01
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Descripción
+      description: Historia en formato Scrum
+    validations:
+      required: true
+  - type: textarea
+    id: dor
+    attributes:
+      label: Definition of Ready
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Criterios de Aceptación
+  - type: textarea
+    id: dod
+    attributes:
+      label: Definition of Done

@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Infra: Mongo up",
+      "type": "shell",
+      "command": "docker compose -f infra/docker-compose.mongo.yml up -d",
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: test",
+      "type": "shell",
+      "command": "cd backend && mvn test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Frontend: test",
+      "type": "shell",
+      "command": "cd frontend && npm test",
+      "problemMatcher": []
+    }
+  ]
+}
