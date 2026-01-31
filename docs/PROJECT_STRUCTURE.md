@@ -20,6 +20,11 @@ poc-wallet-aaas/
   README.md
 ```
 
+## Estado actual (real)
+- Backend implementado: paquete base `com.poc.wallet.backend`.
+- Frontend vacío (pendiente HU-FE-00).
+- Infra: `infra/docker-compose.dev.yml` (stack DEV) y `infra/docker-compose.mongo.yml` (solo Mongo).
+
 ## Reglas rápidas
 - 1 HU = 1 PR (ideal).
 - Mantén el alcance PoC: Identidad & Acceso.

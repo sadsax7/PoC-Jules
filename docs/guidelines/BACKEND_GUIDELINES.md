@@ -31,7 +31,7 @@ Están escritas para que sean fáciles de seguir por un **equipo humano** y por 
 
 ```
 backend/
-  src/main/java/com/sfka/wallet/
+  src/main/java/com/poc/wallet/backend/
     domain/
       model/              # Entidades / Value Objects
       service/            # Servicios de dominio (puro)
