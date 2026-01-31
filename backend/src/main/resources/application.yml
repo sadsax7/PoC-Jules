@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: poc-wallet-backend
+  data:
+    mongodb:
+      uri: ${MONGO_URI}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

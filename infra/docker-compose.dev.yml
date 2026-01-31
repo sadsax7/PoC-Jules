@@ -1,0 +1,29 @@
+# infra/docker-compose.dev.yml
+name: poc-wallet-dev
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: poc_wallet
+    volumes:
+      - poc_wallet_mongo_data:/data/db
+
+  backend:
+    build:
+      context: ../backend
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      MONGO_URI: mongodb://mongo:27017/poc_wallet?serverSelectionTimeoutMS=2000&connectTimeoutMS=2000
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+
+volumes:
+  poc_wallet_mongo_data:
