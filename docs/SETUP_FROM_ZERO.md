@@ -42,17 +42,23 @@ cd poc-wallet-aaas
 
 Copia el ejemplo de variables:
 
+PowerShell (Windows):
+```powershell
+Copy-Item .env.example .env
+```
+
+WSL / Linux:
 ```bash
 cp .env.example .env
 ```
 
 ---
 
-## 3) Infra — MongoDB con Docker
-Levanta Mongo:
+## 3) Infra + Backend — Stack DEV con Docker Compose
+Levanta Mongo + Backend con el compose de desarrollo:
 
 ```bash
-docker compose -f infra/docker-compose.mongo.yml up -d
+docker compose -f infra/docker-compose.dev.yml --env-file .env up --build -d
 ```
 
 Verifica:
@@ -63,30 +69,17 @@ docker ps
 
 ---
 
-## 4) Backend — Crear el proyecto Spring Boot (si aún no existe)
-### Opción A (recomendada): Spring Initializr
-Crea un proyecto con:
-- Spring Web (imperativo)
-- Spring Security
-- Spring Data MongoDB (imperativo)
-- Validation
-- Actuator
-- Lombok (opcional)
-- SpringDoc OpenAPI (dependencia adicional si no sale)
+## 4) Backend — Estado actual
+El backend ya existe en `backend/` con Spring Boot 3.x, Mongo imperativo y endpoint `GET /health`.
 
-Luego pega el contenido dentro de `backend/`.
-
-### Opción B: Bootstrap con CLI (cuando ya tengas Maven)
-Una vez tengas un `pom.xml`, usa:
-
-```bash
-cd backend
-mvn -q -DskipTests package
-```
+Referencia: `backend/README.md`.
 
 ---
 
-## 5) Frontend — Crear Next.js (si aún no existe)
+## 5) Frontend — Estado actual
+`frontend/` está vacío (pendiente HU-FE-00). Cuando se implemente, sigue las guías en `docs/guidelines/FRONTEND_GUIDELINES.md`.
+
+### (Opcional) Crear Next.js si aún no existe
 Dentro del repo:
 
 ```bash
@@ -103,31 +96,28 @@ mkdir -p src/{hooks,lib,types}
 ---
 
 ## 6) Correr local (modo PoC)
-### Backend
-En una terminal:
-
+### Opción recomendada (Docker Compose)
 ```bash
-cd backend
-mvn spring-boot:run
+docker compose -f infra/docker-compose.dev.yml --env-file .env up --build -d
+curl -i http://localhost:8080/health
 ```
 
-### Frontend
-En otra terminal:
-
+### Opción alternativa (backend local + Mongo en Docker)
 ```bash
-cd frontend
-npm install
-npm run dev
+docker compose -f infra/docker-compose.mongo.yml up -d
+cd backend
+export MONGO_URI=mongodb://localhost:27017/poc_wallet?serverSelectionTimeoutMS=2000&connectTimeoutMS=2000
+mvn spring-boot:run
 ```
 
 ---
 
 ## 7) Validación rápida (checklist)
 - [ ] Mongo arriba (docker ps)
-- [ ] Backend responde `/health` (Actuator)
-- [ ] Swagger UI accesible (si ya lo agregaste)
-- [ ] Frontend muestra Landing
-- [ ] Registro/Login/MFA/Me funcionan contra backend
+- [ ] Backend responde `GET /health`
+- [ ] Frontend pendiente (HU-FE-00)
+
+Si `mvn test` falla en WSL, ver `docs/TROUBLESHOOTING_WSL_TESTCONTAINERS.md`.
 
 ---
 
