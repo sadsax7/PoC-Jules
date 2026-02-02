@@ -1,5 +1,11 @@
 package com.poc.wallet.backend.infrastructure.auth;
 
+import com.poc.wallet.backend.application.auth.LoginCommand;
+import com.poc.wallet.backend.application.auth.LoginResult;
+import com.poc.wallet.backend.application.auth.LoginUseCase;
+import com.poc.wallet.backend.application.auth.MfaVerifyCommand;
+import com.poc.wallet.backend.application.auth.MfaVerifyResult;
+import com.poc.wallet.backend.application.auth.MfaVerifyUseCase;
 import com.poc.wallet.backend.application.user.RegisterUserCommand;
 import com.poc.wallet.backend.application.user.RegisterUserResult;
 import com.poc.wallet.backend.application.user.RegisterUserUseCase;
@@ -20,9 +26,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
     private final RegisterUserUseCase registerUserUseCase;
+    private final LoginUseCase loginUseCase;
+    private final MfaVerifyUseCase mfaVerifyUseCase;
 
-    public AuthController(RegisterUserUseCase registerUserUseCase) {
+    public AuthController(
+            RegisterUserUseCase registerUserUseCase,
+            LoginUseCase loginUseCase,
+            MfaVerifyUseCase mfaVerifyUseCase
+    ) {
         this.registerUserUseCase = registerUserUseCase;
+        this.loginUseCase = loginUseCase;
+        this.mfaVerifyUseCase = mfaVerifyUseCase;
     }
 
     @Operation(summary = "Register user")
@@ -49,5 +63,51 @@ public class AuthController {
                 new RegisterUserCommand(request.phone(), request.email(), request.password())
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterResponse(result.userId()));
+    }
+
+    @Operation(summary = "Login user")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Login successful",
+                    content = @Content(schema = @Schema(implementation = LoginResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Invalid credentials",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            )
+    })
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+        LoginResult result = loginUseCase.login(new LoginCommand(request.phone(), request.password()));
+        if (result.isMfaRequired()) {
+            return ResponseEntity.ok(new LoginResponse(null, result.status(), result.tempToken()));
+        }
+        return ResponseEntity.ok(new LoginResponse(result.accessToken(), null, null));
+    }
+
+    @Operation(summary = "Verify MFA code")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "MFA verified",
+                    content = @Content(schema = @Schema(implementation = MfaVerifyResponse.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Validation error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))
+            )
+    })
+    @PostMapping("/mfa/verify")
+    public ResponseEntity<MfaVerifyResponse> verifyMfa(@Valid @RequestBody MfaVerifyRequest request) {
+        MfaVerifyResult result = mfaVerifyUseCase.verify(new MfaVerifyCommand(request.tempToken(), request.code()));
+        return ResponseEntity.ok(new MfaVerifyResponse(result.accessToken()));
     }
 }
