@@ -22,6 +22,7 @@
     <java.version>17</java.version>
     <testcontainers.version>1.21.4</testcontainers.version>
     <springdoc.version>2.5.0</springdoc.version>
+    <jjwt.version>0.11.5</jjwt.version>
   </properties>
 
   <!-- Asegura versiones consistentes de Testcontainers -->
@@ -73,6 +74,25 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-crypto</artifactId>
+    </dependency>
+
+    <!-- JWT -->
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-api</artifactId>
+      <version>${jjwt.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-impl</artifactId>
+      <version>${jjwt.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-jackson</artifactId>
+      <version>${jjwt.version}</version>
+      <scope>runtime</scope>
     </dependency>
 
     <!-- Tests -->

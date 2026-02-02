@@ -1,5 +1,8 @@
 package com.poc.wallet.backend.infrastructure.auth;
 
+import com.poc.wallet.backend.domain.auth.InvalidCredentialsException;
+import com.poc.wallet.backend.domain.auth.InvalidTokenException;
+import com.poc.wallet.backend.domain.auth.MfaInvalidCodeException;
 import com.poc.wallet.backend.domain.user.InvalidPasswordException;
 import com.poc.wallet.backend.domain.user.InvalidPhoneException;
 import com.poc.wallet.backend.domain.user.KycFailedException;
@@ -20,10 +23,28 @@ public class AuthExceptionHandler {
                 .body(new ErrorResponse("USER_ALREADY_EXISTS", "Phone already registered", null));
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ErrorResponse("INVALID_CREDENTIALS", "Invalid credentials", null));
+    }
+
     @ExceptionHandler(KycFailedException.class)
     public ResponseEntity<ErrorResponse> handleKycFailed(KycFailedException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse("KYC_FAILED", "KYC validation failed", null));
+    }
+
+    @ExceptionHandler(MfaInvalidCodeException.class)
+    public ResponseEntity<ErrorResponse> handleMfaInvalidCode(MfaInvalidCodeException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("MFA_INVALID_CODE", "Invalid MFA code", null));
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidToken(InvalidTokenException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse("INVALID_TOKEN", "Invalid or expired token", null));
     }
 
     @ExceptionHandler({InvalidPhoneException.class, InvalidPasswordException.class})
