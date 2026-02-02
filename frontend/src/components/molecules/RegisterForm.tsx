@@ -3,8 +3,10 @@
 import React, { useState } from "react";
 import { Input } from "../atoms/Input";
 import { Button } from "../atoms/Button";
+import { useRegister } from "@/hooks/useRegister";
 
 export const RegisterForm = () => {
+  const { register, loading, success, error } = useRegister();
   const [formData, setFormData] = useState({
     phone: "",
     email: "",
@@ -46,11 +48,15 @@ export const RegisterForm = () => {
     setTouched((prev) => ({ ...prev, [name]: true }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isFormValid) {
-      console.log("Form submitted:", formData);
-    }
+    if (!isFormValid || loading) return;
+
+    await register({
+      phone: formData.phone.trim(),
+      email: formData.email.trim() || undefined,
+      password: formData.password,
+    });
   };
 
   return (
@@ -93,11 +99,19 @@ export const RegisterForm = () => {
       <Button
         variant="primary"
         type="submit"
-        disabled={!isFormValid}
+        disabled={!isFormValid || loading}
         className="mt-4"
       >
-        Registrarse
+        {loading ? "Registrando..." : "Registrarse"}
       </Button>
+      {error && (
+        <p className="text-primary text-sm font-medium text-center">{error}</p>
+      )}
+      {success && (
+        <p className="text-text-light text-sm text-center">
+          Registro exitoso. Puedes iniciar sesión.
+        </p>
+      )}
     </form>
   );
 };
