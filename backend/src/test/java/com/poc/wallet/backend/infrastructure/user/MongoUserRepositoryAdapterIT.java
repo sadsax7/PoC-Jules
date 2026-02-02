@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class MongoUserRepositoryAdapterIT {
 
     @Container
-    static final MongoDBContainer MONGO = new MongoDBContainer("mongo:6.0");
+    static final MongoDBContainer MONGO = new MongoDBContainer("mongo:7.0");
 
     @DynamicPropertySource
     static void registerProperties(DynamicPropertyRegistry registry) {
