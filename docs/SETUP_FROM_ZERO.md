@@ -110,6 +110,11 @@ export MONGO_URI=mongodb://localhost:27017/poc_wallet?serverSelectionTimeoutMS=2
 mvn spring-boot:run
 ```
 
+### OpenAPI / Swagger UI (SpringDoc)
+Con el backend arriba:
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+
 ---
 
 ## 7) Validación rápida (checklist)
