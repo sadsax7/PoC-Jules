@@ -20,6 +20,11 @@ public class MongoUserRepositoryAdapter implements UserRepositoryPort {
     }
 
     @Override
+    public Optional<User> findById(String userId) {
+        return repository.findById(userId).map(this::toDomain);
+    }
+
+    @Override
     public User save(User user) {
         UserDocument saved = repository.save(toDocument(user));
         return toDomain(saved);
