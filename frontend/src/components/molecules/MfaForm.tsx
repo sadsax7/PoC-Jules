@@ -6,19 +6,21 @@ import { Button } from "../atoms/Button";
 
 interface MfaFormProps {
   onSubmit: (otp: string) => void;
+  loading?: boolean;
+  error?: string | null;
 }
 
-export const MfaForm = ({ onSubmit }: MfaFormProps) => {
+export const MfaForm = ({ onSubmit, loading = false, error }: MfaFormProps) => {
   const [otp, setOtp] = useState("");
-  const [error, setError] = useState("");
+  const [localError, setLocalError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (otp.length !== 6) {
-      setError("Ingresa el código de 6 dígitos");
+      setLocalError("Ingresa el código de 6 dígitos");
       return;
     }
-    setError("");
+    setLocalError("");
     onSubmit(otp);
   };
 
@@ -28,7 +30,7 @@ export const MfaForm = ({ onSubmit }: MfaFormProps) => {
         <p className="text-text-light/80 text-center text-sm">
           Ingresa tu código de 6 dígitos
         </p>
-        <OtpInput value={otp} onChange={setOtp} error={error} />
+        <OtpInput value={otp} onChange={setOtp} error={localError || error || undefined} />
         <p className="text-text-light/40 text-center text-xs">
           Código de prueba: <span className="text-primary/60">123456</span>
         </p>
@@ -36,11 +38,14 @@ export const MfaForm = ({ onSubmit }: MfaFormProps) => {
       <Button
         variant="primary"
         type="submit"
-        disabled={otp.length !== 6}
+        disabled={otp.length !== 6 || loading}
         className="w-full"
       >
-        Verificar
+        {loading ? "Verificando..." : "Verificar"}
       </Button>
+      {error && (
+        <p className="text-primary text-sm font-medium text-center">{error}</p>
+      )}
     </form>
   );
 };

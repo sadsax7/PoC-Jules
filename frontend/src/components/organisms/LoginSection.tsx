@@ -5,18 +5,43 @@ import Link from "next/link";
 import { Logo } from "../atoms/Logo";
 import { LoginForm } from "../molecules/LoginForm";
 import { MfaForm } from "../molecules/MfaForm";
+import { useLogin } from "@/hooks/useLogin";
+import { useMfaVerify } from "@/hooks/useMfaVerify";
 
 export const LoginSection = () => {
   const [mfaRequired, setMfaRequired] = useState(false);
+  const [tempToken, setTempToken] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const { login, loading: loginLoading, error: loginError } = useLogin();
+  const { verify, loading: mfaLoading, error: mfaError } = useMfaVerify();
 
-  const handleLoginSubmit = (data: { phone: string }) => {
-    console.log("Login submitted for:", data.phone);
-    setMfaRequired(true);
+  const handleLoginSubmit = async (data: { phone: string; password: string }) => {
+    setSuccessMessage(null);
+    const result = await login({ phone: data.phone, password: data.password });
+    if (!result.ok) return;
+
+    if (result.mfaRequired) {
+      setTempToken(result.tempToken);
+      setMfaRequired(true);
+      return;
+    }
+
+    localStorage.setItem("accessToken", result.accessToken);
+    setMfaRequired(false);
+    setTempToken(null);
+    setSuccessMessage("Login exitoso.");
   };
 
   const handleMfaSubmit = (otp: string) => {
-    console.log("MFA verified with code:", otp);
-    // Simulating success
+    if (!tempToken) return;
+    setSuccessMessage(null);
+    verify({ tempToken, code: otp }).then((result) => {
+      if (!result.ok) return;
+      localStorage.setItem("accessToken", result.accessToken);
+      setMfaRequired(false);
+      setTempToken(null);
+      setSuccessMessage("Login exitoso.");
+    });
   };
 
   return (
@@ -36,9 +61,17 @@ export const LoginSection = () => {
 
         <div className="w-full bg-bg-dark p-8 rounded-3xl border-2 border-primary/10">
           {!mfaRequired ? (
-            <LoginForm onSubmit={handleLoginSubmit} />
+            <LoginForm
+              onSubmit={handleLoginSubmit}
+              loading={loginLoading}
+              error={loginError}
+            />
           ) : (
-            <MfaForm onSubmit={handleMfaSubmit} />
+            <MfaForm
+              onSubmit={handleMfaSubmit}
+              loading={mfaLoading}
+              error={mfaError}
+            />
           )}
         </div>
 
@@ -61,6 +94,9 @@ export const LoginSection = () => {
           >
             Volver al login
           </button>
+        )}
+        {successMessage && (
+          <p className="text-text-light text-sm text-center">{successMessage}</p>
         )}
       </div>
     </section>

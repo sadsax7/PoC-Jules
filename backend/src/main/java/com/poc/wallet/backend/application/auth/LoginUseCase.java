@@ -15,15 +15,18 @@ public class LoginUseCase {
     private final UserRepositoryPort userRepositoryPort;
     private final PasswordHasherPort passwordHasherPort;
     private final TokenServicePort tokenServicePort;
+    private final boolean forceMfa;
 
     public LoginUseCase(
             UserRepositoryPort userRepositoryPort,
             PasswordHasherPort passwordHasherPort,
-            TokenServicePort tokenServicePort
+            TokenServicePort tokenServicePort,
+            boolean forceMfa
     ) {
         this.userRepositoryPort = userRepositoryPort;
         this.passwordHasherPort = passwordHasherPort;
         this.tokenServicePort = tokenServicePort;
+        this.forceMfa = forceMfa;
     }
 
     public LoginResult login(LoginCommand command) {
@@ -40,7 +43,7 @@ public class LoginUseCase {
 
         String userId = user.id().orElseThrow(() -> new IllegalStateException("User ID is required"));
 
-        if (user.mfaEnabled()) {
+        if (forceMfa || user.mfaEnabled()) {
             String tempToken = tokenServicePort.generateTempToken(userId);
             return LoginResult.mfaRequired(tempToken);
         }

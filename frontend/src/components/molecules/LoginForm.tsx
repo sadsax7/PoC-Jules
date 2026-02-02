@@ -5,10 +5,12 @@ import { Input } from "../atoms/Input";
 import { Button } from "../atoms/Button";
 
 interface LoginFormProps {
-  onSubmit: (data: { phone: string }) => void;
+  onSubmit: (data: { phone: string; password: string }) => void;
+  loading?: boolean;
+  error?: string | null;
 }
 
-export const LoginForm = ({ onSubmit }: LoginFormProps) => {
+export const LoginForm = ({ onSubmit, loading = false, error }: LoginFormProps) => {
   const [formData, setFormData] = useState({
     phone: "",
     password: "",
@@ -44,7 +46,7 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
       setTouched({ phone: true, password: true });
       return;
     }
-    onSubmit({ phone: formData.phone.trim() });
+    onSubmit({ phone: formData.phone.trim(), password: formData.password });
   };
 
   return (
@@ -74,11 +76,14 @@ export const LoginForm = ({ onSubmit }: LoginFormProps) => {
       <Button
         variant="primary"
         type="submit"
-        disabled={!isFormValid}
+        disabled={!isFormValid || loading}
         className="mt-4 w-full"
       >
-        Ingresar
+        {loading ? "Ingresando..." : "Ingresar"}
       </Button>
+      {error && (
+        <p className="text-primary text-sm font-medium text-center">{error}</p>
+      )}
     </form>
   );
 };

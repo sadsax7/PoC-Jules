@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties(JwtProperties.class)
+@EnableConfigurationProperties({JwtProperties.class, AuthProperties.class})
 public class AuthConfiguration {
 
     @Bean
@@ -23,9 +23,15 @@ public class AuthConfiguration {
     public LoginUseCase loginUseCase(
             UserRepositoryPort userRepositoryPort,
             PasswordHasherPort passwordHasherPort,
-            TokenServicePort tokenServicePort
+            TokenServicePort tokenServicePort,
+            AuthProperties authProperties
     ) {
-        return new LoginUseCase(userRepositoryPort, passwordHasherPort, tokenServicePort);
+        return new LoginUseCase(
+                userRepositoryPort,
+                passwordHasherPort,
+                tokenServicePort,
+                authProperties.forceMfa()
+        );
     }
 
     @Bean

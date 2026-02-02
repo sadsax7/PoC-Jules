@@ -12,6 +12,8 @@ management:
         include: health,info
 
 app:
+  auth:
+    force-mfa: ${AUTH_FORCE_MFA:true}
   jwt:
     secret: ${JWT_SECRET}
     access-token-expires-minutes: ${JWT_EXPIRES_MIN:20}
