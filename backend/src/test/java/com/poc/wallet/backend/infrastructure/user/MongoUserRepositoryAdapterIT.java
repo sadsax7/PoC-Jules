@@ -16,6 +16,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -91,5 +92,45 @@ class MongoUserRepositoryAdapterIT {
         // Assert
         assertThatThrownBy(() -> adapter.save(second))
                 .isInstanceOfAny(DuplicateKeyException.class, DataIntegrityViolationException.class);
+    }
+
+    @Test
+    void findByIdReturnsUserWhenExists() {
+        // Arrange
+        MongoUserRepositoryAdapter adapter = new MongoUserRepositoryAdapter(repository);
+        PhoneNumber phone = PhoneNumber.of("+12345678");
+        Instant createdAt = Instant.now().truncatedTo(ChronoUnit.MILLIS);
+        User user = User.rehydrate(
+                null,
+                phone,
+                Email.of("user@example.com"),
+                "hashed",
+                KycStatus.PENDING,
+                false,
+                createdAt
+        );
+
+        // Act
+        User saved = adapter.save(user);
+        User found = adapter.findById(saved.id().orElseThrow()).orElseThrow();
+
+        // Assert
+        assertThat(found.phone().value()).isEqualTo("+12345678");
+        assertThat(found.email().orElseThrow().value()).isEqualTo("user@example.com");
+        assertThat(found.kycStatus()).isEqualTo(KycStatus.PENDING);
+        assertThat(found.mfaEnabled()).isFalse();
+        assertThat(found.createdAt()).isEqualTo(createdAt);
+    }
+
+    @Test
+    void findByIdReturnsEmptyWhenMissing() {
+        // Arrange
+        MongoUserRepositoryAdapter adapter = new MongoUserRepositoryAdapter(repository);
+
+        // Act
+        var result = adapter.findById("id-inexistente");
+
+        // Assert
+        assertThat(result).isEmpty();
     }
 }

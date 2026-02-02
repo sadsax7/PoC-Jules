@@ -70,6 +70,12 @@
       <version>${springdoc.version}</version>
     </dependency>
 
+    <!-- Security (for JWT auth filter) -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+
     <!-- Security crypto (BCrypt) -->
     <dependency>
       <groupId>org.springframework.security</groupId>
